@@ -13,7 +13,6 @@ function falsaPosicion(funcion, xi, xf, iteraciones, error_permisible) {
   try {
     // Verificar si la raíz está en el intervalo
     if (funcion(xi) * funcion(xf) <= 0) {
-      
       for (let i = 1; i <= iteraciones; i++) {
         xr = xf - (funcion(xf) * (xf - xi)) / (funcion(xf) - funcion(xi));
         error = Math.abs((xr - xi) / xr);
@@ -118,23 +117,24 @@ function biseccion(funcion, xi, xf, iteraciones, error_permisible) {
 function newtonRaphson(funcion, x0, iteraciones, error_permisible) {
   let tabla = [];
 
+  let parse = math.parse(funcion);
+  let funcionStr = parse.toString();
+  let derivada = math.derivative(parse, "x").toString();
+
   let x1, error;
 
   try {
-    let funcionString = funcion.toString().replace(/\s/g, ""); // Eliminar espacios en blanco
-    let derivada = math.derivative(funcionString, "x").evaluate;
-
     for (let i = 1; i <= iteraciones; i++) {
-      x1 = x0 - funcion(x0) / derivada(x0);
+      x1 = x0 - math.evaluate(funcionStr, { x: x0 }) / math.evaluate(derivada, { x: x0 });
       error = Math.abs((x1 - x0) / x1);
 
       tabla.push({
         Iteracion: i,
         x0: x0,
-        "f(x0)": funcion(x0),
-        "f'(x0)": derivada(x0),
+        "f(x0)": math.evaluate(funcionStr, { x: x0 }),
+        "f'(x0)": math.evaluate(derivada, { x: x0 }),
         x1: x1,
-        "f(x1)": funcion(x1),
+        "f(x1)": math.evaluate(funcionStr, { x: x1 }),
         Er: error,
       });
 
@@ -154,7 +154,7 @@ function newtonRaphson(funcion, x0, iteraciones, error_permisible) {
 
     return {
       tabla,
-      solucion: xr,
+      solucion: x1,
       iteraciones: tabla.length,
       error: error,
     };
@@ -162,6 +162,7 @@ function newtonRaphson(funcion, x0, iteraciones, error_permisible) {
     console.log("Hubo un error:", error.message);
   }
 }
+
 
 function secante(funcion, x0, x1, iteraciones, error_permisible) {
   let tabla = [];
@@ -201,7 +202,7 @@ function secante(funcion, x0, x1, iteraciones, error_permisible) {
 
     return {
       tabla,
-      solucion: xr,
+      solucion: x2,
       iteraciones: tabla.length,
       error: error,
     };
@@ -235,12 +236,7 @@ app.post("/solve", (req, res) => {
       );
       break;
     case "newtonRaphson":
-      result = newtonRaphson(
-        eval(`(${funcion})`),
-        xi,
-        iteraciones,
-        error_permisible
-      );
+      result = newtonRaphson(funcion, xi, iteraciones, error_permisible);
       break;
     case "secante":
       result = secante(
