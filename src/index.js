@@ -1,10 +1,14 @@
 import express from "express";
 import * as math from "mathjs";
+import cors from "cors";
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
+app.use(cors({
+  origin: '*'
+}));
 
 function falsaPosicion(funcion, xi, xf, iteraciones, error_permisible) {
   let xr, error;
