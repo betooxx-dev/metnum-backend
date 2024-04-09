@@ -6,9 +6,11 @@ const app = express();
 const port = 3000;
 
 app.use(express.json());
-app.use(cors({
-  origin: '*'
-}));
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 function falsaPosicion(funcion, xi, xf, iteraciones, error_permisible) {
   let xr, error;
@@ -69,7 +71,7 @@ function biseccion(funcion, xi, xf, iteraciones, error_permisible) {
 
   try {
     // Verificar si la raíz está en el intervalo
-    if (funcion(xi) * funcion(xf) <= 0) {
+    if (funcion(xi) * funcion(xf) < 0) {
       let xr, error;
 
       for (let i = 1; i <= iteraciones; i++) {
@@ -129,7 +131,10 @@ function newtonRaphson(funcion, x0, iteraciones, error_permisible) {
 
   try {
     for (let i = 1; i <= iteraciones; i++) {
-      x1 = x0 - math.evaluate(funcionStr, { x: x0 }) / math.evaluate(derivada, { x: x0 });
+      x1 =
+        x0 -
+        math.evaluate(funcionStr, { x: x0 }) /
+          math.evaluate(derivada, { x: x0 });
       error = Math.abs((x1 - x0) / x1);
 
       tabla.push({
@@ -166,7 +171,6 @@ function newtonRaphson(funcion, x0, iteraciones, error_permisible) {
     console.log("Hubo un error:", error.message);
   }
 }
-
 
 function secante(funcion, x0, x1, iteraciones, error_permisible) {
   let tabla = [];
@@ -217,13 +221,14 @@ function secante(funcion, x0, x1, iteraciones, error_permisible) {
 
 app.post("/solve", (req, res) => {
   const { metodo, funcion, xi, xf, iteraciones, error_permisible } = req.body;
+  console.log(req.body);
 
   let result;
   switch (metodo) {
     case "falsaPosicion":
       console.log(eval(`(${funcion})`));
       result = falsaPosicion(
-        eval(`(${funcion})`),
+        eval(funcion),
         xi,
         xf,
         iteraciones,
@@ -243,13 +248,7 @@ app.post("/solve", (req, res) => {
       result = newtonRaphson(funcion, xi, iteraciones, error_permisible);
       break;
     case "secante":
-      result = secante(
-        eval(`(${funcion})`),
-        xi,
-        xf,
-        iteraciones,
-        error_permisible
-      );
+      result = secante(eval(funcion), xi, xf, iteraciones, error_permisible);
       break;
     default:
       result = "Método no válido";
